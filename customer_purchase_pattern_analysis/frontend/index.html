@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Mining Techniques - Supermarket Analytics Platform</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="brand"><span class="logo">🛒</span><div><b>Data Mining Hub</b><small>Supermarket Analytics PBL</small></div></div>
+  <nav id="nav">
+    <button data-sec="dashboard" class="active"><i>📊</i>Dashboard</button>
+    <button data-sec="dataset"><i>🗂️</i>Dataset</button>
+    <button data-sec="preprocessing"><i>🧹</i>Data Preprocessing</button>
+    <button data-sec="classification"><i>🎯</i>Classification</button>
+    <button data-sec="regression"><i>📈</i>Regression</button>
+    <button data-sec="clustering"><i>🧩</i>Clustering</button>
+    <button data-sec="rules"><i>🔗</i>Association Rules</button>
+    <button data-sec="comparison"><i>⚖️</i>Comparison &amp; Analysis</button>
+    <button data-sec="algorithms"><i>⚙️</i>Rule Mining Theory</button>
+    <button data-sec="insights"><i>💡</i>Business Insights</button>
+    <button data-sec="yearly"><i>📅</i>Yearly Sales</button>
+  </nav>
+  <div class="side-foot"><div id="srcName">Loading…</div><small>Data Warehousing &amp; Mining PBL</small></div>
+</aside>
+
+<main>
+  <header class="topbar">
+    <div>
+      <h1 id="pageTitle">Dashboard</h1>
+      <p id="pageSub">Supermarket Data Mining Learning &amp; Analysis Platform</p>
+    </div>
+    <div id="statusPill" class="pill">Connecting…</div>
+  </header>
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- DASHBOARD / OVERVIEW -->
+  <section id="sec-dashboard" class="sec active">
+    <div class="dm-hero">
+      <div>
+        <h2>🎓 Data Mining Techniques Platform</h2>
+        <p>An interactive, educational platform demonstrating the 5 core Data Mining categories applied to supermarket transaction data. Explore data cleaning, predictive modeling, pattern discovery, and customer segmentation.</p>
+        <div class="dm-hero-tags">
+          <span class="dm-tag">1. Preprocessing</span>
+          <span class="dm-tag">2. Classification</span>
+          <span class="dm-tag">3. Regression</span>
+          <span class="dm-tag">4. Clustering</span>
+          <span class="dm-tag">5. Association Rules</span>
+          <span class="dm-tag" onclick="show('comparison')" style="cursor:pointer">⚖️ Comparison &amp; Analysis</span>
+        </div>
+      </div>
+      <button class="btn purple" onclick="show('preprocessing')">Explore Pipeline →</button>
+    </div>
+
+    <!-- Quick Navigation Launch Cards -->
+    <div class="launch-grid">
+      <div class="launch-card" onclick="show('preprocessing')">
+        <div class="ic">🧹</div>
+        <h4>Data Preprocessing</h4>
+        <p>Imputation, duplicate removal, categorical encoding, scaling &amp; outlier handling.</p>
+        <div class="go">Open Module →</div>
+      </div>
+      <div class="launch-card" onclick="show('classification')">
+        <div class="ic">🎯</div>
+        <h4>Classification</h4>
+        <p>Decision Tree, KNN, Logistic Regression, Naive Bayes, Random Forest, SVM.</p>
+        <div class="go">Open Module →</div>
+      </div>
+      <div class="launch-card" onclick="show('regression')">
+        <div class="ic">📈</div>
+        <h4>Regression</h4>
+        <p>Linear, Multiple Linear, Polynomial, Tree &amp; Forest regression with MAE/RMSE/R².</p>
+        <div class="go">Open Module →</div>
+      </div>
+      <div class="launch-card" onclick="show('clustering')">
+        <div class="ic">🧩</div>
+        <h4>Clustering</h4>
+        <p>K-Means, Agglomerative, DBSCAN &amp; RFM Customer Segmentation.</p>
+        <div class="go">Open Module →</div>
+      </div>
+      <div class="launch-card" onclick="show('rules')">
+        <div class="ic">🔗</div>
+        <h4>Association Rules</h4>
+        <p>Apriori frequent itemset mining, support, confidence &amp; lift metrics.</p>
+        <div class="go">Open Module →</div>
+      </div>
+      <div class="launch-card" onclick="show('comparison')">
+        <div class="ic">⚖️</div>
+        <h4>Comparison &amp; Analysis</h4>
+        <p>Cross-technique &amp; intra-technique performance benchmarking across all 5 DM modules.</p>
+        <div class="go">Open Module →</div>
+      </div>
+    </div>
+
+    <!-- Dataset Summary KPIs -->
+    <div class="kpis" id="kpis"></div>
+    <div class="grid2">
+      <div class="card"><h3>🏆 Top 15 Most Popular Items</h3><div class="chartbox"><canvas id="chTop"></canvas></div></div>
+      <div class="card"><h3>📦 Transaction Size Distribution</h3><div class="chartbox"><canvas id="chSize"></canvas></div></div>
+      <div class="card"><h3>📈 Daily Transaction Volume <small>(last 60 days)</small></h3><div class="chartbox"><canvas id="chDaily"></canvas></div></div>
+      <div class="card"><h3>🍩 Customer Purchase Frequency</h3><div class="chartbox"><canvas id="chFreq"></canvas></div></div>
+    </div>
+  </section>
+
+  <!-- DATASET EXPLORER -->
+  <section id="sec-dataset" class="sec">
+    <div class="card">
+      <h3>⬆️ Load or Change Dataset</h3>
+      <p class="muted">The supermarket transactions dataset is active by default. You can upload custom CSV / XLSX / XLS files, or reload the default dataset at any time.</p>
+      <div class="uploadrow">
+        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls">
+        <button class="btn green" id="btnUpload">Upload &amp; Analyze</button>
+        <button class="btn ghost" id="btnReset">Reload Default Dataset</button>
+      </div>
+    </div>
+    <div class="kpis small" id="dsStats"></div>
+    <div class="grid2">
+      <div class="card"><h3>🧹 Preprocessing Summary</h3><div id="prep"></div></div>
+      <div class="card"><h3>ℹ️ Dataset Details</h3><div id="dsInfo"></div></div>
+    </div>
+    <div class="card">
+      <h3>📊 Column Schema &amp; Statistics</h3>
+      <p class="muted">Summary of column data types, missing counts, unique values, and numerical distributions.</p>
+      <div class="tablewrap short"><table id="dsColsTable"></table></div>
+    </div>
+    <div class="card">
+      <h3>👀 Dataset Preview <small>(first 25 rows)</small></h3>
+      <div class="tablewrap"><table id="previewTable"></table></div>
+    </div>
+  </section>
+
+  <!-- DATA PREPROCESSING WORKBENCH -->
+  <section id="sec-preprocessing" class="sec">
+    <div class="card accent">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+        <div>
+          <h3 style="margin:0">🧹 Interactive Data Preprocessing Pipeline</h3>
+          <p class="muted" style="margin:4px 0 0">Clean, transform, encode, normalize, and prepare your dataset for machine learning models.</p>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn ghost" id="btnPrepReset">Reset to Original</button>
+          <button class="btn green" id="btnPrepCommit">Save &amp; Use in Models</button>
+        </div>
+      </div>
+
+      <!-- Before vs After Comparison Summary Cards -->
+      <div class="diff-grid" id="prepDiffGrid">
+        <div class="diff-card"><span class="lb">Total Rows</span><div class="vals"><span id="pRowB">0</span><span class="arr">→</span><span id="pRowA">0</span></div></div>
+        <div class="diff-card"><span class="lb">Total Columns</span><div class="vals"><span id="pColB">0</span><span class="arr">→</span><span id="pColA">0</span></div></div>
+        <div class="diff-card"><span class="lb">Missing Values</span><div class="vals"><span id="pMisB">0</span><span class="arr">→</span><span id="pMisA">0</span></div></div>
+        <div class="diff-card"><span class="lb">Duplicate Rows</span><div class="vals"><span id="pDupB">0</span><span class="arr">→</span><span id="pDupA">0</span></div></div>
+      </div>
+
+      <!-- Preprocessing Toolbox Tabs -->
+      <div class="tool-tabs" id="prepToolTabs">
+        <button class="tool-btn active" data-tab="tab-impute">🩹 Missing Values</button>
+        <button class="tool-btn" data-tab="tab-duplicates">👥 Duplicates</button>
+        <button class="tool-btn" data-tab="tab-convert">🔄 Type Conversion</button>
+        <button class="tool-btn" data-tab="tab-encode">🏷️ Categorical Encoding</button>
+        <button class="tool-btn" data-tab="tab-scale">⚖️ Feature Scaling</button>
+        <button class="tool-btn" data-tab="tab-outliers">🎯 Outliers</button>
+        <button class="tool-btn" data-tab="tab-select">🔍 Feature Selection</button>
+        <button class="tool-btn" data-tab="tab-clean">🧹 Basic Cleaning</button>
+      </div>
+
+      <!-- TAB 1: Missing Values -->
+      <div class="tool-panel active" id="tab-impute">
+        <div class="controls">
+          <label>Target Column<select id="impCol"><option value="all">All Columns</option></select></label>
+          <label>Imputation Strategy
+            <select id="impStrategy">
+              <option value="mean">Mean (Numerical)</option>
+              <option value="median">Median (Numerical)</option>
+              <option value="mode">Mode / Most Frequent</option>
+              <option value="drop_rows">Remove Missing Rows (dropna)</option>
+              <option value="constant">Custom Constant Value</option>
+            </select>
+          </label>
+          <label id="impValWrap" style="display:none">Constant Value<input type="text" id="impVal" placeholder="e.g. 0 or Unknown"></label>
+          <button class="btn purple" id="btnApplyImpute">Apply Imputation</button>
+        </div>
+      </div>
+
+      <!-- TAB 2: Duplicates -->
+      <div class="tool-panel" id="tab-duplicates">
+        <div class="controls">
+          <label>Deduplication Scope
+            <select id="dupSubset">
+              <option value="all">All Columns (Exact Row Match)</option>
+              <option value="TransactionID,ProductID">TransactionID + ProductID</option>
+              <option value="TransactionID">TransactionID Only</option>
+            </select>
+          </label>
+          <button class="btn purple" id="btnApplyDedupe">Remove Duplicates</button>
+        </div>
+      </div>
+
+      <!-- TAB 3: Type Conversion -->
+      <div class="tool-panel" id="tab-convert">
+        <div class="controls">
+          <label>Select Column<select id="convCol"></select></label>
+          <label>Target Data Type
+            <select id="convType">
+              <option value="numeric">Numeric (Integer/Float)</option>
+              <option value="string">String / Categorical</option>
+              <option value="datetime">DateTime</option>
+            </select>
+          </label>
+          <button class="btn purple" id="btnApplyConvert">Convert Data Type</button>
+        </div>
+      </div>
+
+      <!-- TAB 4: Categorical Encoding -->
+      <div class="tool-panel" id="tab-encode">
+        <p class="muted">Convert categorical/text columns into numerical representations suitable for machine learning.</p>
+        <div class="feature-selector">
+          <div class="feature-selector-head">
+            <span>Select Categorical Columns to Encode</span>
+          </div>
+          <div class="feature-chips" id="encChips"></div>
+        </div>
+        <div class="controls">
+          <label>Encoding Method
+            <select id="encMethod">
+              <option value="label">Label Encoding (Maps categories to 0, 1, 2...)</option>
+              <option value="one_hot">One-Hot Encoding (Binary dummy columns)</option>
+            </select>
+          </label>
+          <label><input type="checkbox" id="encDropFirst" style="width:auto"> Drop first dummy column (One-Hot)</label>
+          <button class="btn purple" id="btnApplyEncode">Encode Variables</button>
+        </div>
+      </div>
+
+      <!-- TAB 5: Feature Scaling -->
+      <div class="tool-panel" id="tab-scale">
+        <p class="muted">Normalize or standardize numerical feature distributions to prevent scale dominance.</p>
+        <div class="feature-selector">
+          <div class="feature-selector-head">
+            <span>Select Numerical Features to Scale</span>
+          </div>
+          <div class="feature-chips" id="scaleChips"></div>
+        </div>
+        <div class="controls">
+          <label>Scaling Method
+            <select id="scaleMethod">
+              <option value="min_max">Min-Max Normalization [0, 1]</option>
+              <option value="standard">Standardization (Z-Score, μ=0, σ=1)</option>
+              <option value="robust">Robust Scaler (Median &amp; IQR)</option>
+            </select>
+          </label>
+          <button class="btn purple" id="btnApplyScale">Scale Selected Features</button>
+        </div>
+      </div>
+
+      <!-- TAB 6: Outlier Handling -->
+      <div class="tool-panel" id="tab-outliers">
+        <p class="muted">Detect and manage extreme values that distort statistical metrics and model training.</p>
+        <div class="feature-selector">
+          <div class="feature-selector-head">
+            <span>Select Numerical Columns for Outlier Detection</span>
+          </div>
+          <div class="feature-chips" id="outlierChips"></div>
+        </div>
+        <div class="controls">
+          <label>Detection Method
+            <select id="outlierMethod">
+              <option value="iqr">IQR Method (Interquartile Range)</option>
+              <option value="z_score">Z-Score Method (|z| &gt; threshold)</option>
+            </select>
+          </label>
+          <label>Action
+            <select id="outlierAction">
+              <option value="clip">Cap / Clip to Boundaries (Preserves Rows)</option>
+              <option value="remove">Remove Outlier Rows</option>
+            </select>
+          </label>
+          <label>Threshold Factor<input type="number" id="outlierThreshold" value="1.5" step="0.1" min="0.5" max="5"></label>
+          <button class="btn purple" id="btnApplyOutliers">Detect &amp; Handle Outliers</button>
+        </div>
+      </div>
+
+      <!-- TAB 7: Feature Selection -->
+      <div class="tool-panel" id="tab-select">
+        <p class="muted">Identify the most informative features and eliminate redundant or uninformative variables.</p>
+        <div class="controls">
+          <label>Selection Method
+            <select id="fsMethod">
+              <option value="select_k_best">SelectKBest (ANOVA F-test scoring)</option>
+              <option value="variance_threshold">Variance Threshold (Drop Low-Variance)</option>
+            </select>
+          </label>
+          <label id="fsTargetWrap">Target Column<select id="fsTarget"></select></label>
+          <label id="fsKWrap">Top K Features<input type="number" id="fsK" value="3" min="1" max="10"></label>
+          <label id="fsThreshWrap" style="display:none">Variance Threshold<input type="number" id="fsThresh" value="0.01" step="0.01" min="0"></label>
+          <button class="btn purple" id="btnApplyFs">Select Features</button>
+        </div>
+      </div>
+
+      <!-- TAB 8: Basic Cleaning -->
+      <div class="tool-panel" id="tab-clean">
+        <p class="muted">Drop irrelevant columns or clean text strings across records.</p>
+        <div class="controls">
+          <label>Drop Column(s)<select id="dropCol" multiple style="height:80px;width:200px"></select></label>
+          <button class="btn ghost" id="btnApplyDrop" style="align-self:flex-end">Drop Selected Column(s)</button>
+        </div>
+        <div class="controls" style="margin-top:14px">
+          <label>Text Cleaning Columns<select id="cleanTextCol"></select></label>
+          <label><input type="checkbox" id="cleanTrim" checked style="width:auto"> Trim whitespace</label>
+          <label><input type="checkbox" id="cleanLower" style="width:auto"> Lowercase text</label>
+          <button class="btn purple" id="btnApplyCleanText">Clean Text</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preprocessing Pipeline History Log -->
+    <div class="card">
+      <h3>📜 Applied Preprocessing Pipeline Steps</h3>
+      <div id="prepHistoryEmpty" class="muted">No preprocessing operations applied yet. Use the tools above to transform the data.</div>
+      <ul id="prepStepsList" class="steps"></ul>
+    </div>
+
+    <!-- Before & After Dataset Previews -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <h3 style="margin:0">👀 Dataset Comparison Preview</h3>
+        <div class="preview-tabs">
+          <button class="preview-tab active" id="btnTabAfter" onclick="switchPrepPreview('after')">Preprocessed View (Current)</button>
+          <button class="preview-tab" id="btnTabBefore" onclick="switchPrepPreview('before')">Original View</button>
+        </div>
+      </div>
+      <div class="tablewrap" id="wrapPrepAfter"><table id="prepTableAfter"></table></div>
+      <div class="tablewrap hidden" id="wrapPrepBefore"><table id="prepTableBefore"></table></div>
+    </div>
+  </section>
+
+  <!-- CLASSIFICATION WORKBENCH -->
+  <section id="sec-classification" class="sec">
+    <div class="card accent">
+      <h3>🎯 Supervised Classification</h3>
+      <p class="muted">Train algorithms to classify instances into discrete categories (e.g. predict <code>Category</code> or purchase patterns) and evaluate with accuracy, precision, recall, and confusion matrix.</p>
+
+      <div class="controls">
+        <label>Algorithm
+          <select id="clfAlgo">
+            <option value="decision_tree">Decision Tree Classifier</option>
+            <option value="knn">K-Nearest Neighbors (KNN)</option>
+            <option value="logistic_regression">Logistic Regression</option>
+            <option value="naive_bayes">Gaussian Naive Bayes</option>
+            <option value="random_forest">Random Forest Classifier</option>
+            <option value="svm">Support Vector Machine (SVM)</option>
+          </select>
+        </label>
+        <label>Target Column (y)
+          <select id="clfTarget"></select>
+        </label>
+        <label>Sample Size Limit
+          <select id="clfSample">
+            <option value="2500">2,500 samples (Fastest)</option>
+            <option value="5000" selected>5,000 samples (Balanced)</option>
+            <option value="10000">10,000 samples</option>
+            <option value="0">All Data</option>
+          </select>
+        </label>
+        <label>Test Split Ratio
+          <select id="clfTestSize">
+            <option value="0.2" selected>80% Train / 20% Test</option>
+            <option value="0.3">70% Train / 30% Test</option>
+          </select>
+        </label>
+      </div>
+
+      <!-- Feature Selection Chips -->
+      <div class="feature-selector">
+        <div class="feature-selector-head">
+          <span>Select Input Features (X)</span>
+          <div class="links">
+            <a onclick="selectAllFeatures('clf', true)">Select All</a>
+            <a onclick="selectNumericFeatures('clf')">Numerical Only</a>
+            <a onclick="selectAllFeatures('clf', false)">Clear</a>
+          </div>
+        </div>
+        <div class="feature-chips" id="clfFeatureChips"></div>
+      </div>
+
+      <!-- Dynamic Hyperparameters -->
+      <div class="controls" id="clfHyperparams">
+        <label id="wrapDtDepth">Max Tree Depth<input type="number" id="clfDtDepth" value="5" min="2" max="20"></label>
+        <label id="wrapKnnK" style="display:none">Neighbors (k)<input type="number" id="clfKnnK" value="5" min="1" max="25"></label>
+        <label id="wrapRfTrees" style="display:none">Number of Trees<input type="number" id="clfRfTrees" value="50" min="10" max="200" step="10"></label>
+        <label id="wrapC" style="display:none">Regularization (C)<input type="number" id="clfC" value="1.0" min="0.01" max="100" step="0.5"></label>
+        <button class="btn purple" id="btnRunClf" style="margin-left:auto">Train &amp; Evaluate Classifier</button>
+      </div>
+      <div id="clfRunStatus" class="muted" style="margin-top:6px">Select features and click Train to build the model.</div>
+    </div>
+
+    <!-- Classification Results Section -->
+    <div id="clfResultsCard" style="display:none">
+      <div class="kpis" id="clfKpis"></div>
+
+      <!-- Summary Interpretation Card -->
+      <div class="card">
+        <h3>🧠 Model Interpretation &amp; Performance Summary</h3>
+        <ul id="clfSummary" class="interp"></ul>
+      </div>
+
+      <!-- Visualizations Grid: Confusion Matrix & Feature Importances -->
+      <div class="grid2">
+        <div class="card">
+          <h3>📊 Confusion Matrix Heatmap <small>(Test Set)</small></h3>
+          <p class="muted">Rows represent Actual classes, columns represent Model Predictions. Diagonal green cells indicate correct classifications.</p>
+          <div class="tablewrap" id="cmWrap"><table id="clfCmTable" class="cm-table"></table></div>
+        </div>
+        <div class="card">
+          <h3 id="clfChartTitle">🏆 Feature Importances</h3>
+          <div class="chartbox"><canvas id="chClfImportance"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Per-Class Metrics Table -->
+      <div class="card">
+        <h3>📋 Detailed Classification Report <small>(Per-Class Precision, Recall, F1)</small></h3>
+        <div class="tablewrap short"><table id="clfClassTable"></table></div>
+      </div>
+
+      <!-- Sample Test Predictions Preview -->
+      <div class="card">
+        <h3>🔬 Sample Predictions Preview <small>(First 25 Test Samples)</small></h3>
+        <div class="tablewrap short"><table id="clfPredsTable"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REGRESSION WORKBENCH -->
+  <section id="sec-regression" class="sec">
+    <div class="card accent">
+      <h3>📈 Supervised Regression</h3>
+      <p class="muted">Train regression models to predict continuous numerical values (e.g. <code>TotalAmount</code> or <code>UnitPrice</code>) and evaluate using MAE, MSE, RMSE, and R² score.</p>
+
+      <div class="controls">
+        <label>Algorithm
+          <select id="regAlgo">
+            <option value="linear">Linear Regression</option>
+            <option value="multiple_linear">Multiple Linear Regression</option>
+            <option value="polynomial">Polynomial Regression</option>
+            <option value="decision_tree">Decision Tree Regressor</option>
+            <option value="random_forest">Random Forest Regressor</option>
+          </select>
+        </label>
+        <label>Target Numerical Column (y)
+          <select id="regTarget"></select>
+        </label>
+        <label>Sample Size Limit
+          <select id="regSample">
+            <option value="2500">2,500 samples</option>
+            <option value="5000" selected>5,000 samples</option>
+            <option value="10000">10,000 samples</option>
+            <option value="0">All Data</option>
+          </select>
+        </label>
+        <label>Test Split Ratio
+          <select id="regTestSize">
+            <option value="0.2" selected>80% Train / 20% Test</option>
+            <option value="0.3">70% Train / 30% Test</option>
+          </select>
+        </label>
+      </div>
+
+      <!-- Feature Selection Chips -->
+      <div class="feature-selector">
+        <div class="feature-selector-head">
+          <span>Select Input Features (X)</span>
+          <div class="links">
+            <a onclick="selectAllFeatures('reg', true)">Select All</a>
+            <a onclick="selectNumericFeatures('reg')">Numerical Only</a>
+            <a onclick="selectAllFeatures('reg', false)">Clear</a>
+          </div>
+        </div>
+        <div class="feature-chips" id="regFeatureChips"></div>
+      </div>
+
+      <!-- Regression Hyperparameters -->
+      <div class="controls">
+        <label id="wrapPolyDeg" style="display:none">Polynomial Degree
+          <select id="regPolyDeg">
+            <option value="2" selected>Degree 2 (Quadratic)</option>
+            <option value="3">Degree 3 (Cubic)</option>
+            <option value="4">Degree 4</option>
+          </select>
+        </label>
+        <label id="wrapRegTreeDepth" style="display:none">Max Tree Depth<input type="number" id="regTreeDepth" value="6" min="2" max="20"></label>
+        <label id="wrapRegRfTrees" style="display:none">Number of Trees<input type="number" id="regRfTrees" value="50" min="10" max="200" step="10"></label>
+        <button class="btn purple" id="btnRunReg" style="margin-left:auto">Train &amp; Predict Regression</button>
+      </div>
+      <div id="regRunStatus" class="muted" style="margin-top:6px">Select target and features to fit the regression model.</div>
+    </div>
+
+    <!-- Regression Results Section -->
+    <div id="regResultsCard" style="display:none">
+      <div class="kpis" id="regKpis"></div>
+
+      <!-- Summary Interpretation Card -->
+      <div class="card">
+        <h3>🧠 Model Interpretation &amp; Residual Analysis</h3>
+        <ul id="regSummary" class="interp"></ul>
+      </div>
+
+      <!-- Visualizations Grid: Actual vs Predicted Scatter & Feature Importances -->
+      <div class="grid2">
+        <div class="card">
+          <h3>🎯 Actual vs. Predicted Values <small>(Scatter Plot)</small></h3>
+          <p class="muted">Points close to the diagonal line represent accurate predictions with low residual error.</p>
+          <div class="chartbox"><canvas id="chRegScatter"></canvas></div>
+        </div>
+        <div class="card">
+          <h3 id="regChartTitle">🏆 Feature Coefficients / Importances</h3>
+          <div class="chartbox"><canvas id="chRegImportance"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Sample Regression Predictions Preview -->
+      <div class="card">
+        <h3>🔬 Sample Predictions Preview <small>(First 25 Test Samples with Absolute and % Error)</small></h3>
+        <div class="tablewrap short"><table id="regPredsTable"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLUSTERING WORKBENCH -->
+  <section id="sec-clustering" class="sec">
+    <div class="card accent">
+      <h3>🧩 Unsupervised Clustering &amp; Segmentation</h3>
+      <p class="muted">Discover natural groupings in the data without labeled targets. Segment transactions by price/quantity or cluster customers using RFM analysis.</p>
+
+      <!-- Mode Toggle -->
+      <div style="margin-bottom:12px">
+        <label style="font-weight:700;font-size:13px;color:var(--muted);display:block;margin-bottom:6px">Analysis Level</label>
+        <div class="mode-switch">
+          <button class="mode-btn active" id="btnModeRows" onclick="setClusteringMode('rows')">📦 Transaction / Line Item Level</button>
+          <button class="mode-btn" id="btnModeRfm" onclick="setClusteringMode('rfm')">👥 Customer RFM (Recency, Frequency, Monetary)</button>
+        </div>
+      </div>
+
+      <div class="controls">
+        <label>Algorithm
+          <select id="cluAlgo">
+            <option value="kmeans">K-Means Clustering</option>
+            <option value="agglomerative">Hierarchical / Agglomerative Clustering</option>
+            <option value="dbscan">DBSCAN (Density-Based)</option>
+          </select>
+        </label>
+        <label id="wrapCluK">Number of Clusters (k)
+          <select id="cluK">
+            <option value="2">2 Clusters</option>
+            <option value="3" selected>3 Clusters</option>
+            <option value="4">4 Clusters</option>
+            <option value="5">5 Clusters</option>
+            <option value="6">6 Clusters</option>
+            <option value="8">8 Clusters</option>
+          </select>
+        </label>
+        <label id="wrapCluLinkage" style="display:none">Linkage Method
+          <select id="cluLinkage">
+            <option value="ward" selected>Ward (Minimizes variance)</option>
+            <option value="complete">Complete Linkage</option>
+            <option value="average">Average Linkage</option>
+          </select>
+        </label>
+        <label id="wrapCluEps" style="display:none">Epsilon (eps)<input type="number" id="cluEps" value="0.5" step="0.1" min="0.1" max="5"></label>
+        <label id="wrapCluMinSamples" style="display:none">Min Samples<input type="number" id="cluMinSamples" value="5" min="2" max="50"></label>
+        <label>Sample Limit
+          <select id="cluSample">
+            <option value="2000" selected>2,000 instances (Snappy)</option>
+            <option value="4000">4,000 instances</option>
+            <option value="0">All Data</option>
+          </select>
+        </label>
+      </div>
+
+      <!-- Feature Selection Chips -->
+      <div class="feature-selector">
+        <div class="feature-selector-head">
+          <span>Select Features to Cluster (Choose 2 or more)</span>
+        </div>
+        <div class="feature-chips" id="cluFeatureChips"></div>
+      </div>
+
+      <div class="controls">
+        <label style="flex-direction:row;align-items:center;gap:8px">
+          <input type="checkbox" id="cluScale" checked style="width:auto"> Standardize features (Z-Score scaling before clustering)
+        </label>
+        <button class="btn purple" id="btnRunClu" style="margin-left:auto">Execute Clustering Algorithm</button>
+      </div>
+      <div id="cluRunStatus" class="muted" style="margin-top:6px">Select features and parameters to discover clusters.</div>
+    </div>
+
+    <!-- Clustering Results Section -->
+    <div id="cluResultsCard" style="display:none">
+      <div class="kpis" id="cluKpis"></div>
+
+      <!-- Summary Interpretation Card -->
+      <div class="card">
+        <h3>🧠 Cluster Interpretation &amp; Profile Summary</h3>
+        <ul id="cluSummary" class="interp"></ul>
+      </div>
+
+      <!-- Visualizations Grid: 2D Projection Scatter & Size Breakdown -->
+      <div class="grid2">
+        <div class="card">
+          <h3 id="cluScatterTitle">📍 2D Cluster Projection</h3>
+          <p class="muted" id="cluScatterSub">Points color-coded by cluster membership.</p>
+          <div class="chartbox tall"><canvas id="chCluScatter"></canvas></div>
+        </div>
+        <div class="card">
+          <h3>🍩 Cluster Size Distribution</h3>
+          <div class="chartbox tall"><canvas id="chCluPie"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Cluster Profiles Table (Means & Centroids) -->
+      <div class="card">
+        <h3>🏷️ Cluster Centroids &amp; Feature Profiles</h3>
+        <p class="muted">Mean and centroid feature values for each identified cluster.</p>
+        <div class="tablewrap short"><table id="cluProfileTable"></table></div>
+      </div>
+
+      <!-- Sample Cluster Assignments Preview -->
+      <div class="card">
+        <h3>🔬 Sample Cluster Assignments <small>(First 25 Instances)</small></h3>
+        <div class="tablewrap short"><table id="cluAssignTable"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ASSOCIATION RULES (EXISTING COMPONENT PRESERVED) -->
+  <section id="sec-rules" class="sec">
+    <!-- Apriori Configuration Card integrated directly here as well -->
+    <div class="card accent">
+      <h3>🚀 Mine Association Rules (Apriori) <span class="badge green">IMPLEMENTED</span></h3>
+      <p class="muted">Discover frequent item combinations and generate actionable association rules based on minimum support, confidence, and lift.</p>
+      <div class="controls">
+        <label>Minimum Support<input type="number" id="pSup" step="0.001" min="0.002" max="1"></label>
+        <label>Minimum Confidence<input type="number" id="pConf" step="0.05" min="0" max="1"></label>
+        <label>Minimum Lift<input type="number" id="pLift" step="0.1" min="0"></label>
+        <label>Item Level<select id="pLevel"><option>Product</option><option>Category</option></select></label>
+        <label>Max Itemset Size<select id="pLen"><option>2</option><option selected>3</option><option>4</option></select></label>
+        <button class="btn purple" id="btnRun">Preprocess &amp; Run Apriori</button>
+      </div>
+      <div id="runInfo" class="muted">Press the button to run Apriori on the active dataset.</div>
+      <div class="grid2" id="runResults" style="display:none">
+        <div class="card inner"><h3>Preprocessing &amp; Run Log</h3><ul id="runSteps" class="steps"></ul><div id="runMeta" class="chips"></div></div>
+        <div class="card inner"><h3>Frequent Itemsets <small id="isCount"></small></h3><div class="tablewrap short"><table id="itemsetTable"></table></div></div>
+      </div>
+      <div class="card inner" id="runRulesCard" style="display:none"><h3>Association Rules <small id="ruCount"></small></h3><div class="tablewrap"><table id="algoRulesTable"></table></div></div>
+    </div>
+
+    <div class="card">
+      <h3>🧠 Business Interpretation</h3>
+      <ul id="interp" class="interp"></ul>
+      <small class="muted" id="rulesParams"></small>
+    </div>
+    <h2 class="sub">Top Association Rules</h2>
+    <div class="cards4" id="ruleCards"></div>
+    <div class="grid2">
+      <div class="card"><h3>🎯 Support vs Confidence</h3><div class="chartbox tall"><canvas id="chScatter"></canvas></div></div>
+      <div class="card"><h3>📜 All Mined Rules</h3><div class="tablewrap tallwrap"><table id="rulesTable"></table></div></div>
+    </div>
+  </section>
+
+  <!-- ALGORITHMS THEORY & COMPARISON (PRESERVED) -->
+  <section id="sec-algorithms" class="sec">
+    <div class="notice info" id="algoDisclaimer"></div>
+    <div class="grid3" id="algoCards"></div>
+    <div class="card"><h3>📋 Side-by-Side Algorithm Comparison</h3><div class="tablewrap"><table id="algoTable"></table></div></div>
+  </section>
+
+  <!-- BUSINESS INSIGHTS (PRESERVED) -->
+  <section id="sec-insights" class="sec">
+    <div class="insights" id="insightCards"></div>
+  </section>
+
+  <!-- YEARLY SALES TRENDS (PRESERVED) -->
+  <section id="sec-yearly" class="sec">
+    <div id="yearlyMsg" class="notice hidden"></div>
+    <div id="yearlyBody">
+      <div class="kpis" id="yKpis"></div>
+      <div class="grid2">
+        <div class="card"><h3>🧮 Items Sold by Year</h3><div class="chartbox"><canvas id="chYItems"></canvas></div></div>
+        <div class="card"><h3>📊 Year-over-Year Growth</h3><div class="chartbox"><canvas id="chYoY"></canvas></div></div>
+        <div class="card"><h3>📆 Monthly Sales Comparison</h3><div class="chartbox"><canvas id="chMonthly"></canvas></div></div>
+        <div class="card"><h3>🥇 Top Items by Year</h3><div class="chartbox"><canvas id="chTopYear"></canvas></div></div>
+      </div>
+      <div class="card"><h3>🗓️ Quarterly Sales Analysis</h3><div class="chartbox tall"><canvas id="chQuarter"></canvas></div></div>
+    </div>
+  </section>
+
+  <!-- DATA MINING COMPARISON & ANALYSIS INTERFACE (ADD-ON FEATURE) -->
+  <section id="sec-comparison" class="sec">
+    <!-- Hero / Header Banner -->
+    <div class="dm-hero" style="background:linear-gradient(135deg,#0f172a,#1e1b4b 50%,#581c87)">
+      <div>
+        <h2>⚖️ Data Mining Comparison &amp; Analysis</h2>
+        <p>A unified comparative dashboard benchmarking all 5 Data Mining techniques: Data Preprocessing, Classification, Regression, Clustering, and Association Rule Mining. Clearly categorizes evaluation metrics and explains which algorithm performs better and why.</p>
+        <div class="dm-hero-tags">
+          <span class="dm-tag">🧹 Preprocessing: Hygiene &amp; Quality</span>
+          <span class="dm-tag">🎯 Classification: Accuracy &amp; F1</span>
+          <span class="dm-tag">📈 Regression: R² &amp; RMSE</span>
+          <span class="dm-tag">🧩 Clustering: Silhouette &amp; Separation</span>
+          <span class="dm-tag">🔗 Association Rules: Support, Conf &amp; Lift</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selection & Configuration Panel -->
+    <div class="card accent">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:12px">
+        <div>
+          <h3 style="margin:0">🎛️ Algorithm &amp; Technique Selection Panel</h3>
+          <p class="muted" style="margin:4px 0 0">Select multiple algorithms and techniques to compare. Run benchmarks across selected models simultaneously on the active dataset.</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="tool-btn active" id="btnCmpPresetAll">All 5 Techniques</button>
+          <button class="tool-btn" id="btnCmpPresetSupervised">Supervised (Clf + Reg)</button>
+          <button class="tool-btn" id="btnCmpPresetUnsupervised">Unsupervised (Clu + Rules)</button>
+          <button class="tool-btn" id="btnCmpPresetClear">Clear All</button>
+        </div>
+      </div>
+
+      <!-- 5 Technique Selection Cards -->
+      <div class="cmp-grid5">
+        <!-- 1. Preprocessing Selection -->
+        <div class="cmp-tech-card">
+          <div class="cmp-tech-head">
+            <label><input type="checkbox" id="cmpTechPrep" checked> <b>Preprocessing</b></label>
+            <span class="metric-cat-pill cat-prep">Data Quality</span>
+          </div>
+          <div class="cmp-sub">Compares initial vs cleaned baseline data health, missing values, duplicates, and row preservation.</div>
+          <div style="margin-top:auto;font-size:12px;color:#1e1b4b;font-weight:600;background:#ede9fe;padding:6px 10px;border-radius:8px">
+            Metrics: Cleanliness Score %, Null Reduction, Duplicate Elimination
+          </div>
+        </div>
+
+        <!-- 2. Classification Selection -->
+        <div class="cmp-tech-card">
+          <div class="cmp-tech-head">
+            <label><input type="checkbox" id="cmpTechClf" checked> <b>Classification</b></label>
+            <span class="metric-cat-pill cat-clf">Discrete Target</span>
+          </div>
+          <div class="cmp-sub">
+            Target:
+            <select id="cmpClfTarget" style="width:100%;margin-top:4px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px"></select>
+          </div>
+          <div class="cmp-algo-list">
+            <label class="cmp-algo-item"><input type="checkbox" id="cmpClfDt" checked> Decision Tree</label>
+            <label class="cmp-algo-item"><input type="checkbox" id="cmpClfRf" checked> Random Forest</label>
+            <label class="cmp-algo-item"><input type="checkbox" id="cmpClfKnn" checked> KNN Classifier</label>
+            <label class="cmp-algo-item"><input type="checkbox" id="cmpClfLr" checked> Logistic Regression</label>
+            <label class="cmp-algo-item"><input type="checkbox" id="cmpClfNb" checked> Naive Bayes</label>
+            <label class="cmp-algo-item"><input type="checkbox" id="cmpClfSvm"> SVM (Support Vector)</label>
+          </div>
+        </div>
+
+        <!-- 3. Regression Selection -->
+        <div class="cmp-tech-card">
+          <div class="cmp-tech-head">
+            <label><input type="checkbox" id="cmpTechReg" checked> <b>Regression</b></label>
+            <span class="metric-cat-pill cat-reg">Continuous Value</span>
+          </div>
+          <div class="cmp-sub">
+            Target:
+            <select id="cmpRegTarget" style="width:100%;margin-top:4px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px"></select>
+          </div>
+          <div class="cmp-algo-list">
+            <label class="cmp-algo-item"><input type="checkbox" id="cmpRegLinear" checked> Linear Regression</label>
+            <label class="cmp-algo-item"><input type="checkbox" id="cmpRegPoly" checked> Polynomial (Deg 2)</label>
+            <label class="cmp-algo-item"><input type="checkbox" id="cmpRegDt" checked> Decision Tree Regressor</label>
+            <label class="cmp-algo-item"><input type="checkbox" id="cmpRegRf" checked> Random Forest Regressor</label>
+          </div>
+        </div>
+
+        <!-- 4. Clustering Selection -->
+        <div class="cmp-tech-card">
+          <div class="cmp-tech-head">
+            <label><input type="checkbox" id="cmpTechClu" checked> <b>Clustering</b></label>
+            <span class="metric-cat-pill cat-clu">Segmentation</span>
+          </div>
+          <div class="cmp-sub">
+            Mode:
+            <select id="cmpCluMode" style="width:100%;margin-top:4px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px">
+              <option value="rows" selected>Transaction Level</option>
+              <option value="rfm">Customer RFM Level</option>
+            </select>
+          </div>
+          <div class="cmp-algo-list">
+            <label class="cmp-algo-item"><input type="checkbox" id="cmpCluKmeans" checked> K-Means (k=3)</label>
+            <label class="cmp-algo-item"><input type="checkbox" id="cmpCluAgg" checked> Agglomerative</label>
+            <label class="cmp-algo-item"><input type="checkbox" id="cmpCluDbscan" checked> DBSCAN (Density)</label>
+          </div>
+        </div>
+
+        <!-- 5. Association Rules Selection -->
+        <div class="cmp-tech-card">
+          <div class="cmp-tech-head">
+            <label><input type="checkbox" id="cmpTechRules" checked> <b>Association Rules</b></label>
+            <span class="metric-cat-pill cat-rules">Basket Affinity</span>
+          </div>
+          <div class="cmp-sub">Apriori frequent itemset mining on customer basket transactions.</div>
+          <div class="cmp-algo-list">
+            <label class="cmp-algo-item"><input type="checkbox" id="cmpRulesApriori" checked> Apriori (Implemented)</label>
+            <div style="font-size:11.5px;color:var(--muted);margin-top:4px">Min Supp: 0.005 | Conf: 0.25 | Lift: 1.2</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:8px">
+        <button class="btn purple" id="btnRunComparison">⚡ Generate Comparative Analysis</button>
+        <button class="btn ghost" id="btnSyncComparison">🔄 Sync from Active Workbenches</button>
+        <span id="cmpRunStatus" class="muted">Click "Generate Comparative Analysis" to benchmark selected algorithms.</span>
+      </div>
+    </div>
+
+    <!-- Comparative Results Section (populated dynamically) -->
+    <div id="cmpResultsCard" style="display:none">
+      <!-- Navigation Tabs across Comparative Views -->
+      <div class="cmp-tabs" id="cmpViewTabs">
+        <button class="cmp-tab active" data-tab="tab-cmp-all">🌐 All Techniques Overview</button>
+        <button class="cmp-tab" data-tab="tab-cmp-clf">🎯 Classification Deep Dive</button>
+        <button class="cmp-tab" data-tab="tab-cmp-reg">📈 Regression Deep Dive</button>
+        <button class="cmp-tab" data-tab="tab-cmp-clu">🧩 Clustering Deep Dive</button>
+        <button class="cmp-tab" data-tab="tab-cmp-rules">🔗 Association Rules</button>
+        <button class="cmp-tab" data-tab="tab-cmp-prep">🧹 Preprocessing Impact</button>
+        <button class="cmp-tab" data-tab="tab-cmp-cross">📋 Cross-Technique Synthesis</button>
+      </div>
+
+      <!-- Best-Performing Algorithm Highlight Cards (Winners per Technique) -->
+      <div class="winner-grid" id="cmpWinnerGrid"></div>
+
+      <!-- Automated Interpretation & Explanation Panel -->
+      <div class="card">
+        <h3>🧠 Automated Interpretation &amp; Performance Rationale</h3>
+        <p class="muted">Clear explanation of which algorithm performs better and why, evaluated against each technique's appropriate evaluation criteria.</p>
+        <ul class="interp" id="cmpExplanationList"></ul>
+      </div>
+
+      <!-- VIEW 1: All Techniques Overview -->
+      <div class="cmp-section-block" id="tab-cmp-all">
+        <div class="grid2">
+          <div class="card">
+            <h3>🎯 Classification Algorithm Comparison <small>(Accuracy vs. F1-Score)</small></h3>
+            <div class="chartbox"><canvas id="chCmpClf"></canvas></div>
+          </div>
+          <div class="card">
+            <h3>📈 Regression Model Comparison <small>(R² Score vs. RMSE Error)</small></h3>
+            <div class="chartbox"><canvas id="chCmpReg"></canvas></div>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <h3>🧩 Clustering Separation Comparison <small>(Silhouette Score)</small></h3>
+            <div class="chartbox"><canvas id="chCmpClu"></canvas></div>
+          </div>
+          <div class="card">
+            <h3>⚡ Algorithmic Execution Time Comparison <small>(Training Speed in Seconds)</small></h3>
+            <div class="chartbox"><canvas id="chCmpSpeed"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 2: Classification Deep Dive -->
+      <div class="cmp-section-block hidden" id="tab-cmp-clf">
+        <div class="card">
+          <h3>🎯 Classification Algorithms Detailed Comparison Table</h3>
+          <p class="muted">Evaluation metrics: <b>Accuracy</b> (overall correctness), <b>Macro Precision</b> (exactness across classes), <b>Macro Recall</b> (completeness across classes), and <b>Macro F1-Score</b> (balanced performance).</p>
+          <div class="tablewrap"><table id="cmpClfTable"></table></div>
+        </div>
+      </div>
+
+      <!-- VIEW 3: Regression Deep Dive -->
+      <div class="cmp-section-block hidden" id="tab-cmp-reg">
+        <div class="card">
+          <h3>📈 Regression Models Detailed Comparison Table</h3>
+          <p class="muted">Evaluation metrics: <b>R² Score</b> (variance explained, closer to 1.0 is ideal), <b>MAE</b> (Mean Absolute Error in dollars), <b>MSE</b> (quadratic error), and <b>RMSE</b> (penalizes extreme outlier residuals).</p>
+          <div class="tablewrap"><table id="cmpRegTable"></table></div>
+        </div>
+      </div>
+
+      <!-- VIEW 4: Clustering Deep Dive -->
+      <div class="cmp-section-block hidden" id="tab-cmp-clu">
+        <div class="card">
+          <h3>🧩 Clustering Algorithms Detailed Comparison Table</h3>
+          <p class="muted">Evaluation metrics: <b>Silhouette Score</b> (ranges from -1 to +1; measures cluster cohesion and separation), <b>Number of Clusters (k)</b>, <b>Inertia / WCSS</b>, and <b>Noise / Outlier Points</b>.</p>
+          <div class="tablewrap"><table id="cmpCluTable"></table></div>
+        </div>
+      </div>
+
+      <!-- VIEW 5: Association Rules Deep Dive -->
+      <div class="cmp-section-block hidden" id="tab-cmp-rules">
+        <div class="grid2">
+          <div class="card">
+            <h3>🎯 Association Rules: Support vs. Confidence Distribution</h3>
+            <div class="chartbox"><canvas id="chCmpRules"></canvas></div>
+          </div>
+          <div class="card">
+            <h3>🏷️ Key Association Rule Mining Metrics</h3>
+            <div id="cmpRulesMetricsSummary" class="kpis small" style="margin-top:10px"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>📜 Top Association Rules Mined</h3>
+          <p class="muted">Evaluation metrics: <b>Support</b> (basket frequency), <b>Confidence</b> (rule reliability), <b>Lift</b> (strength over random chance, > 1.0 is positive association), and <b>Leverage</b>.</p>
+          <div class="tablewrap short"><table id="cmpRulesTable"></table></div>
+        </div>
+      </div>
+
+      <!-- VIEW 6: Preprocessing Impact -->
+      <div class="cmp-section-block hidden" id="tab-cmp-prep">
+        <div class="grid2">
+          <div class="card">
+            <h3>🧹 Data Quality Transformation <small>(Before vs. After Cleaning)</small></h3>
+            <div class="chartbox"><canvas id="chCmpPrep"></canvas></div>
+          </div>
+          <div class="card">
+            <h3>🛡️ Data Hygiene Statistics &amp; Retention</h3>
+            <div id="cmpPrepKpis" class="kpis small" style="margin-top:10px"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>📋 Before vs. After Data Preprocessing Impact Table</h3>
+          <p class="muted">Preprocessing prepares clean, valid numerical and categorical features for reliable machine learning execution.</p>
+          <div class="tablewrap"><table id="cmpPrepTable"></table></div>
+        </div>
+      </div>
+
+      <!-- VIEW 7: Cross-Technique Synthesis -->
+      <div class="cmp-section-block hidden" id="tab-cmp-cross">
+        <div class="notice info">
+          <b>⚖️ Methodological Notice:</b> Each Data Mining technique optimizes for distinct mathematical goals (Classification maximizes class separation, Regression minimizes residual distance, Clustering maximizes cluster cohesion, Association Rules maximize lift affinity over independence, Preprocessing ensures data cleanliness). <b>They are categorized according to their appropriate evaluation criteria rather than treated as directly equivalent.</b>
+        </div>
+        <div class="card">
+          <h3>📋 Cross-Technique Categorized Evaluation Matrix</h3>
+          <p class="muted">Synthesis comparing objectives, primary evaluation metrics, best-performing models, computational complexity, and business applications across all 5 techniques.</p>
+          <div class="tablewrap"><table id="cmpHolisticTable"></table></div>
+        </div>
+        <div class="card">
+          <h3>🌐 End-to-End Supermarket Data Mining Pipeline Summary</h3>
+          <div id="cmpHolisticSummary" style="font-size:14.5px;line-height:1.75;color:#334155"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
